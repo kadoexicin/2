@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kadoex için Özel Site</title>
+<style>
+body {
+  margin:0; padding:0; font-family:'Arial Black', sans-serif; color:white; overflow:hidden; background:black;
+}
+h1,h2,p {
+  margin:20px 0; text-align:center;
+  text-shadow:0 0 5px cyan,0 0 10px magenta,0 0 15px lime; 
+  animation: neon 3s infinite alternate;
+}
+button {
+  padding:10px 20px; font-size:20px; margin:15px; cursor:pointer; border:2px solid white; border-radius:10px;
+  background: linear-gradient(90deg,#ff4d4d,#ffb84d);
+  color:white; transition: transform 0.2s, box-shadow 0.3s;
+  position:relative;
+}
+button:hover { 
+  transform:scale(1.2); 
+  box-shadow:0 0 30px cyan,0 0 60px magenta;
+}
+button:active{
+  transform:scale(1.1);
+  box-shadow:0 0 50px yellow,0 0 100px lime;
+}
+.typing { display:inline-block; border-right:3px solid white; white-space:nowrap; overflow:hidden; animation:blink-caret 0.8s step-end infinite; }
+canvas {
+  position:absolute;
+  top:0; left:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+#mainContent {
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes blink-caret { from,to{border-color:transparent;}50%{border-color:white;} }
+@keyframes neon { 0%{text-shadow:0 0 5px cyan,0 0 10px magenta,0 0 15px lime;} 50%{text-shadow:0 0 20px cyan,0 0 40px magenta,0 0 60px lime;} 100%{text-shadow:0 0 5px cyan,0 0 10px magenta,0 0 15px lime;} }
+</style>
+</head>
+<body>
+
+<script>
+if(/Mobi|Android|iPhone/i.test(navigator.userAgent)){
+  document.body.innerHTML = "<h1>⚠ Bu site sadece bilgisayarda açılabilir ⚠</h1>";
+}
+</script>
+
+<canvas id="stars"></canvas>
+<canvas id="bgLight"></canvas>
+<canvas id="confetti"></canvas>
+
+<div id="mainContent">
+<h1 class="typing" id="line1"></h1>
+<h2 class="typing" id="line2"></h2>
+<p class="typing" id="line3"></p>
+<p class="typing" id="line4"></p>
+
+<h2>🎯 Kadoex için Mini Oyun 🎯</h2>
+<canvas id="miniGame" width="400" height="400"></canvas>
+<p>Skor: <span id="score">0</span></p>
+
+<h2>🎮 Tic Tac Toe 5x5 🎮</h2>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+
+<button onclick="loveMessage()">💖 Mesajı Göster 💖</button>
+
+<audio autoplay loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  // Yazı animasyonu
+  const lines=[
+    "⚡ BU SİTE EDO (EDİZ) TARAFINDAN KADOEX’E ÖZEL HAZIRLANMIŞTIR ⚡",
+    "🌟 Selam Kadoex Abe İyi Akşamlar 🌟",
+    "Bu senin için kodladığım bir site",
+    "🔥 Abi büyük hayranınım, inşallah 1 milyon olursun 🔥"
+  ];
+  const elements=[document.getElementById("line1"),document.getElementById("line2"),document.getElementById("line3"),document.getElementById("line4")];
+  function typeLine(text, element, delay=50){let i=0; function typing(){if(i<text.length){element.innerHTML+=text[i];i++;setTimeout(typing,delay);}} typing();}
+  for(let j=0;j<lines.length;j++){ setTimeout(()=>{typeLine(lines[j],elements[j]);}, j*1500); }
+
+  // Kayan yıldızlar
+  const starCanvas = document.getElementById("stars"); 
+  const sctx = starCanvas.getContext("2d");
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  let stars=[]; for(let i=0;i<200;i++){stars.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*2+1,speed:Math.random()*2+1});}
+  function drawStars(){ 
+    sctx.clearRect(0,0,window.innerWidth,window.innerHeight); 
+    for(let i=0;i<stars.length;i++){ 
+      sctx.fillStyle="white"; sctx.beginPath(); sctx.arc(stars[i].x,stars[i].y,stars[i].r,0,Math.PI*2); sctx.fill(); 
+      stars[i].y+=stars[i].speed; 
+      if(stars[i].y>window.innerHeight){stars[i].y=0; stars[i].x=Math.random()*window.innerWidth;} 
+    } 
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  // Arka plan ışık patlamaları
+  const lightCanvas = document.getElementById("bgLight"); 
+  const lctx = lightCanvas.getContext("2d");
+  lightCanvas.width = window.innerWidth;
+  lightCanvas.height = window.innerHeight;
+  let lightRadius=50, lightGrowing=true;
+  function drawLights(){ 
+    lctx.clearRect(0,0,window.innerWidth,window.innerHeight); 
+    lctx.fillStyle="rgba(0,255,255,0.05)"; 
+    lctx.beginPath(); 
+    lctx.arc(window.innerWidth/2,window.innerHeight/2,lightRadius,0,Math.PI*2); lctx.fill(); 
+    if(lightGrowing){ lightRadius+=0.5; if(lightRadius>250) lightGrowing=false;} 
+    else{ lightRadius-=0.5; if(lightRadius<50) lightGrowing=true;} 
+    requestAnimationFrame(drawLights);
+  }
+  drawLights();
+
+  // Confetti efekti
+  const confettiCanvas = document.getElementById("confetti"); 
+  const cctx = confettiCanvas.getContext("2d");
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  let confettis=[];
+  function createConfetti(){
+    for(let i=0;i<100;i++){
+      confettis.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*5+2,speedY:Math.random()*3+2,color:`hsl(${Math.random()*360},100%,50%)`});
+    }
+  }
+  function drawConfetti(){
+    cctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    confettis.forEach((f)=>{
+      cctx.fillStyle=f.color;
+      cctx.beginPath();
+      cctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+      cctx.fill();
+      f.y+=f.speedY;
+      if(f.y>window.innerHeight){ f.y=-10; f.x=Math.random()*window.innerWidth; }
+    });
+    requestAnimationFrame(drawConfetti);
+  }
+  createConfetti(); drawConfetti();
+
+  // Mini oyun (tıkla topu yakala)
+  const miniCanvas = document.getElementById("miniGame"); 
+  const miniCtx = miniCanvas.getContext("2d");
+  let ball={x:Math.random()*380,y:Math.random()*380,radius:20}; 
+  let score=0;
+  function drawBall(){ 
+    miniCtx.clearRect(0,0,400,400); 
+    miniCtx.fillStyle="yellow"; 
+    miniCtx.beginPath(); 
+    miniCtx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2); 
+    miniCtx.fill(); 
+    document.getElementById("score").innerText = score;
+  }
+  miniCanvas.addEventListener("click", function(e){
+    let rect=miniCanvas.getBoundingClientRect(); 
+    let mx=e.clientX-rect.left; 
+    let my=e.clientY-rect.top; 
+    let dx=mx-ball.x; 
+    let dy=my-ball.y;
+    if(Math.sqrt(dx*dx+dy*dy)<=ball.radius){ 
+      score++; 
+      drawBall(); 
+      alert("Helal lan dayı!"); 
+      ball.x=Math.random()*380; 
+      ball.y=Math.random()*380; 
+      drawBall
